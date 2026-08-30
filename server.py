@@ -51,12 +51,30 @@ Your AI drives the ring by writing tiny files into ./state/ :
 Missing files are fine — the ring just idles.
 """
 import json
+import subprocess
+import sys
+import threading
 import time
 import urllib.parse
+import webbrowser
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+NO_OPEN = "--no-open" in sys.argv
+
+
+def open_in_chrome(url):
+    # Hand tracking's proven path is Chrome specifically (see
+    # TROUBLESHOOTING.md); the OS default browser may not be Chrome,
+    # so force it on macOS instead of using webbrowser's default.
+    if sys.platform == "darwin":
+        try:
+            subprocess.Popen(["open", "-a", "Google Chrome", url])
+            return
+        except OSError:
+            pass
+    webbrowser.open(url)
 
 
 def load_config():
@@ -386,7 +404,10 @@ class Handler(SimpleHTTPRequestHandler):
 if __name__ == "__main__":
     (HERE / "state").mkdir(exist_ok=True)   # the ring's runtime files land here
     port = int(CONFIG.get("port", 8794))
-    print(f"barehands up: http://127.0.0.1:{port}/stage.html", flush=True)
+    url = f"http://127.0.0.1:{port}/stage.html"
+    print(f"barehands up: {url}", flush=True)
     print("  tracker (camera): open that URL in Chrome", flush=True)
     print("  render (overlay): same URL + ?role=render", flush=True)
+    if not NO_OPEN:
+        threading.Timer(0.6, lambda: open_in_chrome(url)).start()
     ThreadingHTTPServer(("127.0.0.1", port), Handler).serve_forever()

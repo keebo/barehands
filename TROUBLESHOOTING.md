@@ -60,7 +60,7 @@ When a gesture misfires or won't fire for a particular person, do NOT guess at t
 - **The claw:** search `v6.1` / the claw gate. Mouth floor (`ratio >` ~0.80 to enter, looser to hold), per-finger curl ceilings, pinky-out (`c20`), aspect rail.
 - **The clap:** search `THE PRAYER LAW`. Wrist + knuckle proximity (fractions of window width), vertical-fingers floor (`handUp > 0.85`), the was-apart memory.
 - **Hallucinated hands:** search `THE SANITY BOUND` (`aspect > 6`).
-- **Throw/tap feel:** search `pk > 1300` (fling speed), `tMs < 300` (tap timing). These are the only screen-pixel-based gates, so someone at an unusual distance or window size may want them nudged; everything above is distance-proof ratios.
+- **Throw/tap feel:** search `pk > 1300` (fling speed), `tMs < 450` (tap timing, widened from 300 on 2026-08-21 — see the "TAP GATE TUNING" comment above the five tap gates in `stage.html`). These are the only screen-pixel-based gates, so someone at an unusual distance or window size may want them nudged; everything above is distance-proof ratios.
 
 ### The philosophy
 

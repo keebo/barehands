@@ -1726,13 +1726,21 @@ function endGrab(c, i, cur) {
     c.stretch = null;
     const h = cur.history;
     c.hch = 0;                          // hold-charge / movable glow ends
+    // TAP GATE TUNING (2026-08-21, Kevin's hand): pinch was firing fine
+    // (the shape-based okBack gate confirmed via THE TUNING CLINIC's P
+    // sampler) but every quick tap dragged the item instead of opening
+    // it — a real air-tap on his hand travels well past a jittery
+    // amount, not just camera noise. Widened all five tap gates below
+    // from 45px/300-350ms to 150px/450-500ms. Fitted from live retest,
+    // not sampled ratios, since these are the screen-pixel gates
+    // TROUBLESHOOTING.md calls out as fair game to nudge per person.
     // shelf v3: a quick, near-still release on a browser row = the TAP
     // (folders unfold, notes open, props stage, widgets summon)
     if (c.type === "browser" && c.mode === "scroll") {
       const bMs = performance.now() - (cur.grabT || 0);
       const bTrav = Math.hypot(cur.x - (c.tapX || cur.x),
                                cur.y - (c.tapY || cur.y));
-      if (bMs < 350 && bTrav < 24) browserTap(c, cur);
+      if (bMs < 500 && bTrav < 150) browserTap(c, cur);
     }
     // v3.3/v3.8: a quick tap on the GRIP BAR closes — notes and
     // folder panes alike
@@ -1741,7 +1749,7 @@ function endGrab(c, i, cur) {
       const gMs = performance.now() - (cur.grabT || 0);
       const gTrav = Math.hypot(cur.x - (c.tapX || cur.x),
                                cur.y - (c.tapY || cur.y));
-      if (gMs < 350 && gTrav < 24) killItem(c);
+      if (gMs < 500 && gTrav < 150) killItem(c);
       c.barGrab = false;
     }
     // GESTURE v3 (2026-08-14, Jared's spec — "make it a single pinch"):
@@ -1754,7 +1762,7 @@ function endGrab(c, i, cur) {
       const tMs = performance.now() - (cur.grabT || 0);
       const tTrav = Math.hypot(cur.x - (c.tapX || cur.x),
                                cur.y - (c.tapY || cur.y));
-      if (tMs < 300 && tTrav < 26) openPanel(c);
+      if (tMs < 450 && tTrav < 150) openPanel(c);
     }
     // GESTURE v3.1 (2026-08-14, the crush is DEAD — "that is happening
     // too naturally"): THE TAP IS SYMMETRIC — tap opens closed things,
@@ -1768,7 +1776,7 @@ function endGrab(c, i, cur) {
       const xMs = performance.now() - (cur.grabT || 0);
       const xTrav = Math.hypot(cur.x - (c.tapX || cur.x),
                                cur.y - (c.tapY || cur.y));
-      if (xMs < 300 && xTrav < 26) killItem(c);
+      if (xMs < 450 && xTrav < 150) killItem(c);
     }
     // PHASE 2 quick-tap releases: the RING toggles its orbital bloom;
     // an ORB grows into its browser pane (same discrimination gate as
@@ -1777,7 +1785,7 @@ function endGrab(c, i, cur) {
       const qMs = performance.now() - (cur.grabT || 0);
       const qTr = Math.hypot(cur.x - (c.tapX ?? cur.x),
                              cur.y - (c.tapY ?? cur.y));
-      if (qMs < 350 && qTr < 24) {
+      if (qMs < 500 && qTr < 150) {
         if (c.type === "widget" && c.def.w === "ring" &&
             c.mode === "move") {
           const sc = RINGS.get(c.id);
@@ -2189,7 +2197,7 @@ async function boot() {
         cur.pinched = handGarbage ? false
                     : wasPinched ? !relOk
                                  : ratio < (aspect < 2.0 ? 0.38 : 0.32) &&
-                                   (okNow || cur.okEma > 0.55 || holdingI);
+                                   (okBack || cur.okEma > 0.55 || holdingI);
         // v3.9.15 — PINCH PROBATION (his fold-through catch: closing a
         // hand into a curl passes THROUGH a lawful OK-sign for two
         // frames — index meets thumb while the back fingers are still

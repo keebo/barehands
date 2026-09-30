@@ -68,9 +68,27 @@ def open_in_chrome(url):
     # Hand tracking's proven path is Chrome specifically (see
     # TROUBLESHOOTING.md); the OS default browser may not be Chrome,
     # so force it on macOS instead of using webbrowser's default.
+    #
+    # --app=<url> opens it as a chromeless app window (no tabs, no
+    # address bar) instead of a normal browser tab -- same Chrome
+    # engine underneath, so the proven hand-tracking path is untouched,
+    # it just looks like a standalone app instead of a browser. The
+    # window is still a real Chrome tab under the hood (one tab, one
+    # window), so it's still reachable by the usual
+    # tell application "Google Chrome" / tabs AppleScript if something
+    # needs to close it later.
+    #
+    # -n is required: plain "open -a" only forwards --args when Chrome
+    # is cold-launching. If Chrome is already running, "open -a" just
+    # activates the existing window and silently drops --args, so
+    # nothing for barehands would open at all. -n forces `open` to
+    # re-invoke the Chrome binary; Chrome's own single-instance lock
+    # then hands the --app request to the already-running process
+    # instead of spawning a second one.
     if sys.platform == "darwin":
         try:
-            subprocess.Popen(["open", "-a", "Google Chrome", url])
+            subprocess.Popen(["open", "-na", "Google Chrome", "--args",
+                               f"--app={url}"])
             return
         except OSError:
             pass
